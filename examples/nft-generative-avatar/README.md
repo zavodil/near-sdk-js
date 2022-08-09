@@ -18,4 +18,6 @@ npm i
 npm run build
 ```
 
-Result contract bytecode file will be in `build/contract.base64`. Intermediate JavaScript file can be found in `build/fungible-token.js`. You'll only need the `base64` file to deploy contract to chain. The intermediate JavaScript file is for curious user and near-sdk-js developers to understand what code generation happened under the hood.
+Result contract bytecode file will be in `build/contract.base64`. Intermediate JavaScript file can be found in `build/contract.js`. You'll only need the `base64` file to deploy contract to chain. The intermediate JavaScript file is for curious user and near-sdk-js developers to understand what code generation happened under the hood.
+
+// TODO
