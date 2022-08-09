@@ -19,7 +19,7 @@ class Token {
 
 class NftTokenMetadata {
     constructor(token_id) {
-        this.title = `Pattern of ${token_id}`;
+        this.title = `Avatar of ${token_id}`;
         this.description = "";
         this.media = toDataUri(encodeURIComponent(Avataaars.create(token_id)));
         this.media_hash = "";
