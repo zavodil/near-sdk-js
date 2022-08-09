@@ -4,7 +4,7 @@ This smart-contract is based on Avataaars Library by Pablo Stanley, it generates
 
 Every image from NFT is generated on the fly and is not stored on the NEAR blockchain.
 
-The NFT contract uses NEAR-SDK-JS to utilize the existing <a href={"https://github.com/HB0N0/AvataaarsJs"}>generative Avatar library</a>.
+The NFT contract uses NEAR-SDK-JS to utilize the existing [generative Avatar library](https://github.com/HB0N0/AvataaarsJs).
 
 Known issues:
 - Web wallet doesn't show NFT
