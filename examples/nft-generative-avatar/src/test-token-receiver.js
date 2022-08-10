@@ -16,7 +16,7 @@ class NftContract extends NearContract {
     }
 
     @call
-    nftOnTransfer({ senderId, previousOwnerId, tokenId, msg }) {
+    nft_on_transfer({ senderId, previousOwnerId, tokenId, msg }) {
         assert(
             near.predecessorAccountId() === this.nonFungibleTokenAccountId,
             "Only supports the one non-fungible token contract"

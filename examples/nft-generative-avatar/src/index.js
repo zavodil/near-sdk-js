@@ -1,4 +1,4 @@
-import { NearContract, NearBindgen, call, view, near, LookupMap } from 'near-sdk-js'
+import {NearContract, NearBindgen, call, view, near, LookupMap, Vector} from 'near-sdk-js'
 import {Avataaars, getOptions, jenkinsOneAtATimeHash} from './avatars.js';
 
 function assert(b, str) {
@@ -58,18 +58,21 @@ class NftContractMetadata {
 
 @NearBindgen
 class NftContract extends NearContract {
-    constructor({ owner_id, owner_by_id_prefix }) {
+    constructor({ owner_id, owner_by_id_prefix, token_ids_prefix}) {
         super()
         assert(owner_id !== null, "Owner not found")
         assert(owner_by_id_prefix !== null, "Prefix not found")
         near.log(`Owner: ${owner_id}`);
         this.owner_id = owner_id
         this.owner_by_id = new LookupMap(owner_by_id_prefix)
+        this.token_ids = new Vector(token_ids_prefix)
+        this.total_supply = 0;
     }
 
     deserialize() {
         super.deserialize()
         this.owner_by_id = Object.assign(new LookupMap, this.owner_by_id)
+        this.token_ids = Object.assign(new Vector, this.token_ids);
     }
 
     internalTransfer({ sender_id, receiver_id, token_id, approval_id, memo }) {
@@ -85,17 +88,17 @@ class NftContract extends NearContract {
     }
 
     @call
-    nftTransfer({ receiver_id, token_id, approval_id, memo }) {
+    nft_transfer({ receiver_id, token_id, approval_id, memo }) {
         let sender_id = near.predecessorAccountId()
         this.internalTransfer({ sender_id, receiver_id, token_id, approval_id, memo })
     }
 
     @call
-    nftTransferCall({ receiver_id, token_id, approval_id, memo, msg }) {
+    nft_transfer_call({ receiver_id, token_id, approval_id, memo, msg }) {
         let sender_id = near.predecessorAccountId()
         let old_owner_id = this.internalTransfer({ sender_id, receiver_id, token_id, approval_id, memo })
 
-        let onTransferRet = near.jsvmCall(receiver_id, 'nftOnTransfer', { senderId: sender_id, previousOwnerId: old_owner_id, tokenId: token_id, msg: msg })
+        let onTransferRet = near.jsvmCall(receiver_id, 'nft_on_transfer', { senderId: sender_id, previousOwnerId: old_owner_id, tokenId: token_id, msg: msg })
 
         // NOTE: Arbitrary logic can be run here, as an example we return the token to the initial
         // owner if receiver's `nftOnTransfer` returns `true`
@@ -117,15 +120,23 @@ class NftContract extends NearContract {
     }
 
     @call
-    nft_mint({ token_owner_id }) {
-        token_owner_id = !token_owner_id ? near.predecessorAccountId() : token_owner_id;
-        assert(this.owner_by_id.get(token_owner_id) === null, "Token fro this user already exists")
+    nft_mint({ }) {
+        //token_owner_id = !token_owner_id ? near.predecessorAccountId() : token_owner_id;
+        let token_owner_id = near.predecessorAccountId();
+        assert(this.token_ids.get(token_owner_id) === null, "Token for this user already exists")
 
-        this.owner_by_id.set(token_owner_id, token_owner_id)
+        this.owner_by_id.set(token_owner_id, token_owner_id);
+        this.token_ids.push(token_owner_id)
+        this.total_supply += 1;
 
         near.log(`EVENT_JSON:{"standard":"nep171","version":"1.0.0","event":"nft_mint","data":[{"owner_id":"${token_owner_id}","token_ids":["${token_owner_id}"]}]}`);
 
         return new Token(token_owner_id, token_owner_id)
+    }
+
+    @view
+    nft_total_supply({}){
+        this.total_supply.toString()
     }
 
     @view

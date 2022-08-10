@@ -15,11 +15,6 @@ export function SignInPrompt() {
           <p>To view and mint your avatar you need to sign in using the NEAR Wallet. It is very simple,
         just use the button below.
       </p>
-      <p>
-        Do not worry, this app runs in the test network ("testnet"). It works
-        just like the main network ("mainnet"), but using NEAR Tokens that are
-        only for testing!
-      </p>
       <br/>
       <p style={{ textAlign: 'center' }}>
         <button onClick={signInWithNearWallet}>Sign in with NEAR Wallet</button>
@@ -30,8 +25,8 @@ export function SignInPrompt() {
 
 export function SignOutButton({accountId}) {
   return (
-    <button style={{ float: 'right' }} onClick={signOutNearWallet}>
-      Sign out {accountId}
+    <button style={{ float: 'right', fontSize: '10px' }} onClick={signOutNearWallet}>
+      Sign out
     </button>
   );
 }

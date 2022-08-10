@@ -1,5 +1,5 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME || "nft2.jswm.testnet";
-const JSVM_ACCOUNT = process.env.JSVM_ACCOUNT_NAME || "jsvm.testnet";
+const CONTRACT_NAME = process.env.CONTRACT_NAME || "nft.js-vm.near";
+const JSVM_ACCOUNT = process.env.JSVM_ACCOUNT_NAME || "js-vm.near";
 
 function getConfig(env) {
   switch (env) {

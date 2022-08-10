@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 import React from 'react';
 import {callJsvm, viewJsvm} from './near-config'
-import { utils } from 'near-api-js';
+import {Account, utils, providers, Connection } from 'near-api-js';
 
 import './assets/global.css';
 
@@ -62,32 +62,46 @@ export default function App() {
         setUiPleaseWait(true);
         const {previewAccount} = e.target.elements;
 
-        setHeaderText(`Avatar of ${previewAccount.value}:`);
+        accountExists(previewAccount.value).then(exists => {
+            console.log(exists)
+            if(exists){
+                setHeaderText(`Avatar of ${previewAccount.value}:`);
 
-        viewJsvm("nft_token", {token_id: previewAccount.value}).then(token => {
-            setUserNFT(token);
-            setUserNFTMedia(token.metadata.media);
+                viewJsvm("nft_token", {token_id: previewAccount.value}).then(token => {
+                    setUserNFT(token);
+                    setUserNFTMedia(token.metadata.media);
 
-            console.log(token);
-            setUiPleaseWait(false);
-            setPreviewTokenStatus("NFT Avatar already minted");
-        }).catch(err => {
-            viewJsvm("nft_token_preview", {token_id: previewAccount.value}).then(token => {
-                setUserNFT(token);
-                setUserNFTMedia(token.metadata.media);
+                    console.log(token);
+                    setUiPleaseWait(false);
+                    setPreviewTokenStatus("NFT Avatar already minted");
+                }).catch(err => {
+                    viewJsvm("nft_token_preview", {token_id: previewAccount.value}).then(token => {
+                        setUserNFT(token);
+                        setUserNFTMedia(token.metadata.media);
 
-                console.log(token);
-                setAccountIdToMint(previewAccount.value);
+                        console.log(token);
+                        setAccountIdToMint(previewAccount.value);
+                        setUiPleaseWait(false);
+                        setPreviewTokenStatus(`NFT Avatar for ${previewAccount.value} is not minted yet`);
+                    });
+                })
+            }
+            else {
+                setUserNFTMedia(null);
+                setAccountIdToMint(null);
+                setPreviewTokenStatus(null);
                 setUiPleaseWait(false);
-                setPreviewTokenStatus(`NFT Avatar for ${previewAccount.value} is not minted yet`);
-            });
+                setHeaderText(`Account ${previewAccount.value} doesn't exist`);
+            }
         })
+
+
     }
 
     function mintAvatar(e) {
         e.preventDefault();
         setUiPleaseWait(true);
-        callJsvm("nft_mint", {token_owner_id: accountIdToMint}, utils.format.parseNearAmount("0.005"));
+        callJsvm("nft_mint", {}, utils.format.parseNearAmount("0.005"));
     }
 
     return (
@@ -107,7 +121,7 @@ export default function App() {
                         {previewTokenStatus}
                     </p>
 
-                    {accountIdToMint &&
+                    {accountIdToMint && accountIdToMint === window.accountId &&
                         <form onSubmit={mintAvatar} className="change" style={{marginTop: "30px"}}>
                             <label>Mint this token for {accountIdToMint}</label>
                             <div style={{display: "block", textAlign: "left"}}>
@@ -138,4 +152,22 @@ export default function App() {
         </main>
     </>
 );
+}
+
+async function accountExists(accountId) {
+    let connection = getNearAccountConnection();
+    try {
+        let y = await new Account(connection, accountId).state();
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function getNearAccountConnection() {
+    if (!window.connection) {
+        const provider = new providers.JsonRpcProvider(config.nodeUrl);
+        window.connection = new Connection(config.nodeUrl, provider, {});
+    }
+    return window.connection;
 }
