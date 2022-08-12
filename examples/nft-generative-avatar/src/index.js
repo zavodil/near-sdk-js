@@ -123,7 +123,7 @@ class NftContract extends NearContract {
     nft_mint({ }) {
         //token_owner_id = !token_owner_id ? near.predecessorAccountId() : token_owner_id;
         let token_owner_id = near.predecessorAccountId();
-        assert(this.token_ids.get(token_owner_id) === null, "Token for this user already exists")
+        assert(this.token_ids.toArray().includes(token_owner_id) === false, "Token for this user already exists")
 
         this.owner_by_id.set(token_owner_id, token_owner_id);
         this.token_ids.push(token_owner_id)
@@ -171,6 +171,21 @@ class NftContract extends NearContract {
     @view
     get_seed ({token_id}) {
         return jenkinsOneAtATimeHash(token_id).toString();
+    }
+
+    @view
+    get_token_ids ({}) {
+        return this.token_ids.toArray();
+    }
+
+    @view
+    token_exists ({token_id}) {
+        return this.token_ids.toArray().includes(token_id);
+    }
+
+    @view
+    get_token_by_id ({token_id}) {
+        return this.token_ids.get(token_id);
     }
 }
 
