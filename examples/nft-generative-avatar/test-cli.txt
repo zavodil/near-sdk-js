@@ -1,0 +1,69 @@
+near create-account nft3.jswm.testnet --masterAccount jswm.testnet --initialBalance 10
+near create-account nft.js-vm.near --masterAccount js-vm.near --initialBalance 3
+
+
+export CONTRACT_ID=nft3.jswm.testnet
+export ADMIN_ID=zavodil.testnet
+export USER_ID=zavodil.testnet
+export JSVM_ID=jswm.testnet
+export TOKEN_ID=zavodil.testnet
+
+export CONTRACT_ID=nft.js-vm.near
+export ADMIN_ID=zavodil.near
+export JSVM_ID=js-vm.near
+export TOKEN_ID=rucommunity.near
+
+near deploy $JSVM_ID ../../jsvm/jsvm.wasm -f
+
+
+near js deploy --accountId $CONTRACT_ID --base64File build/contract.base64 --deposit 0.1 --jsvm $JSVM_ID
+
+near js call $CONTRACT_ID init --args '["'$CONTRACT_ID'", "p_o"]' --deposit 0.1 --accountId $CONTRACT_ID --jsvm $JSVM_ID
+near js call $CONTRACT_ID init --args '{"owner_id": "'$ADMIN_ID'", "owner_by_id_prefix": "p_o", "token_ids_prefix": "p_t"}' --deposit 0.1 --accountId $CONTRACT_ID --jsvm $JSVM_ID
+
+
+near js call $CONTRACT_ID nft_mint --args '{}' --deposit 0.1 --accountId $USER_ID --jsvm $JSVM_ID
+near js call $CONTRACT_ID nft_mint --args '{}' --deposit 0.1 --accountId zavodil2.testnet --jsvm $JSVM_ID
+
+
+near js view $CONTRACT_ID nft_token --args '{"token_id": "'$TOKEN_ID'"}' --jsvm $JSVM_ID
+near js call $CONTRACT_ID nft_transfer --args '{"receiver_id": "web4.testnet", "token_id": "zavodil2.testnet"}' --deposit 0.1 --accountId zavodil2.testnet --jsvm $JSVM_ID
+
+
+
+near js view $CONTRACT_ID get_owner --args '{}' --jsvm $JSVM_ID
+near js view $CONTRACT_ID get_token_ids --args '{}' --jsvm $JSVM_ID
+near js view $CONTRACT_ID get_token_by_id --args '{"token_id": "'$TOKEN_ID'"}' --jsvm $JSVM_ID
+near js view $CONTRACT_ID token_exists --args '{"token_id": "zavodil.testnet"}' --jsvm $JSVM_ID
+near js view $CONTRACT_ID get_options --args '{"token_id":"root.testnet"}' --jsvm $JSVM_ID
+near js view $CONTRACT_ID get_seed --args '{"token_id":"root.testnet"}' --jsvm $JSVM_ID
+
+near js view $CONTRACT_ID nft_metadata --args '' --jsvm $JSVM_ID
+
+
+near js call $CONTRACT_ID nftTransfer --args '{"receiver_id": "zavodi.testnet", "token_id": "'$TOKEN_ID'"}' --deposit 0.1 --accountId $USER_ID --jsvm $JSVM_ID
+near js call $CONTRACT_ID nftTransfer --args '{"receiver_id": "zavodi.testnet", "token_id": "'$TOKEN_ID'"}' --deposit 0.1 --accountId zavodil.testnet --jsvm $JSVM_ID
+
+
+near js call nft-jsvm.test.near nftToken --args '["1"]' --deposit 0.1 --accountId nft-jsvm.test.near --jsvm jsvm.test.near
+
+--
+near view $JSVM_ID nft_metadata '{"in":"1"}'
+near view $JSVM_ID nft_token '{"token_id":"zavodil.testnet"}'
+near view $JSVM_ID nft_token_metadata '{"token_id":"zavodil.testnet"}'
+near view $JSVM_ID nft_tokens_for_owner '{"account_id":"web4.testnet", "from_index": 0, "limit": 2}'
+near view $JSVM_ID nft_tokens_for_owner_set '{"account_id":"web4.testnet", "from_index": "1", "limit": 1}'
+near view $JSVM_ID nft_supply_for_owner '{"account_id":"web4.testnet"}'
+
+near js view $CONTRACT_ID nft_supply_for_owner --args '{"account_id":"zavodil.testnet"}' --jsvm $JSVM_ID
+near js view $CONTRACT_ID nft_tokens_for_owner_set --args '{"account_id":"web4.testnet", "from_index": 0, "limit": 2}' --jsvm $JSVM_ID
+near js view $CONTRACT_ID get_token_by_id --args '{"token_id": "web4.testnet"}' --jsvm $JSVM_ID
+
+
+near js call $CONTRACT_ID nft_mint --args '{}' --deposit 0.1 --accountId amm.near --jsvm $JSVM_ID
+near view $JSVM_ID nft_token '{"token_id":"rucommunity.near"}'
+near js call $CONTRACT_ID nft_transfer --args '{"receiver_id": "rucommunity.near", "token_id": "rucommunity.near"}' --deposit 0.1 --accountId zavodil.near --jsvm $JSVM_ID
+
+
+
+
